@@ -3,13 +3,12 @@
 RED="\e[31m"
 GREEN="\e[32m"
 BLUE="\e[36m"
-RESET="\e[0m"
+YELLOW="\e[33m"
 BOLD="\e[1m"
-
+RESET="\e[0m"
 
 echo -e "$BLUE[i] Fetching list of valid users$RESET"
-IFS= read -r -d '' -a VALID_USERS <<< "$(curl -sL https://raw.githubusercontent.com/LZX1000/IRSEC-2025/refs/heads/main/valid-linux-users.txt)"
-
+mapfile -t VALID_USERS < <(curl -sL "https://raw.githubusercontent.com/LZX1000/IRSEC-2025/refs/heads/main/valid-linux-users.txt" | tr -d '\r' | sed '/^\s*$/d')
 # Store usernames, UIDs, and GIDs of every user in an array
 mapfile -t userinfo < <(cut -d : -f1,3,4 /etc/passwd)
 
@@ -19,7 +18,7 @@ usernames=("${userinfo[@]%%:*}")
 
 for user in "${usernames[@]}"; do
     if [[ ! " ${VALID_USERS[*]} " == *" $user "* ]]; then
-        echo -e "$RED[!] $user is not a valid user$RESET"
+        echo -e "$YELLOW[?] $user is not on the list$RESET"
     fi
 done
 
