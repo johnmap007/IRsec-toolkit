@@ -21,6 +21,14 @@ for user in "${usernames[@]}"; do
         echo -e "$YELLOW[?] $user is not on the list$RESET"
     fi
 done
+echo -e "\n"
+
+for entry in "${userinfo[@]}"; do
+    IFS=: read -r username uid gid <<< "$entry"
+    if [[ ! "$username" == "root" && ("$uid" == 0 || "$gid" == 0) ]]; then
+        echo -e "$BOLD$RED[!] $username HAS A UID OR GID OF 0!!!$RESET"
+    fi
+done
 
 echo -e "$GREEN[*] Done!$RESET"
 
