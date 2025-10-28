@@ -6,4 +6,5 @@ loki
 riphunter
 theflash
 tonystark
+drstrange
 bartallen
