@@ -1,0 +1,130 @@
+# Credentials & account file 
+-a always,exit -F path=/etc/passwd       -F perm=wa -F key=user_mod
+-a always,exit -F path=/etc/shadow       -F perm=wa -F key=creds_change
+-a always,exit -F path=/etc/group        -F perm=wa -F key=group_mod
+-a always,exit -F path=/etc/gshadow      -F perm=wa -F key=group_mod
+-a always,exit -F path=/etc/login.defs   -F perm=wa -F key=auth_policy
+
+# SSH
+-a always,exit -F path=/etc/ssh/sshd_config   -F perm=wa -F key=sshd_config_change
+# -a always,exit -F dir=/etc/ssh/sshd_config.d/  -F perm=wa -F key=sshd_config_change
+
+# Sudo
+-a always,exit -F path=/etc/sudoers     -F perm=wa -F key=sudo_config_change
+-a always,exit -F dir=/etc/sudoers.d    -F perm=wa -F key=sudo_config_change
+
+# Cron & scheduled tasks
+-a always,exit -F path=/etc/crontab         -F perm=wa -F key=cron_jobs
+-a always,exit -F path=/etc/cron.allow      -F perm=wa -F key=cron_jobs
+-a always,exit -F dir=/etc/cron.d           -F perm=wa -F key=cron_jobs
+-a always,exit -F dir=/etc/cron.hourly      -F perm=wa -F key=cron_jobs
+-a always,exit -F dir=/etc/cron.daily       -F perm=wa -F key=cron_jobs
+-a always,exit -F dir=/etc/cron.weekly      -F perm=wa -F key=cron_jobs
+-a always,exit -F dir=/etc/cron.monthly     -F perm=wa -F key=cron_jobs
+-a always,exit -F dir=/var/spool/cron       -F perm=wa -F key=cron_jobs
+-a always,exit -F path=/etc/anacrontab      -F perm=wa -F key=cron_jobs
+
+# systemd (service-based persistence)
+-a always,exit -F dir=/etc/systemd/system        -F perm=wa -F key=systemd_change
+-a always,exit -F dir=/lib/systemd/system        -F perm=wa -F key=systemd_change
+-a always,exit -F path=/etc/systemd/system.conf  -F perm=wa -F key=systemd_change
+-a always,exit -F dir=/etc/systemd/user          -F perm=wa -F key=systemd_user
+-a always,exit -F dir=/usr/lib/systemd/          -F perm=wa -F key=systemd_change
+-a always,exit -F dir=/lib/systemd/              -F perm=wa -F key=systemd_change
+# -a always,exit -F dir=/usr/local/lib/systemd/    -F perm=wa -F key=systemd_change
+# -a always,exit -F dir=/usr/local/share/systemd/user -F perm=wa -F key=systemd_user
+# -a always,exit -F dir=/usr/share/systemd/user    -F perm=wa -F key=systemd_user
+
+# Networking and DNS
+-a always,exit -F path=/etc/hosts         -F perm=wa -F key=net_change
+-a always,exit -F path=/etc/resolv.conf   -F perm=wa -F key=net_change
+-a always,exit -F path=/etc/sysctl.conf   -F perm=wa -F key=sysctl_change
+-a always,exit -F dir=/etc/sysctl.d       -F perm=wa -F key=sysctl_change
+-a always,exit -F path=/etc/hosts.allow   -F perm=wa -F key=net_change
+-a always,exit -F path=/etc/hosts.deny    -F perm=wa -F key=net_change
+
+# Loader / library path tampering
+-a always,exit -F path=/etc/ld.so.conf    -F perm=wa -F key=loader_change
+-a always,exit -F dir=/etc/ld.so.conf.d   -F perm=wa -F key=loader_change
+
+# Shell init files
+-a always,exit -F path=/etc/profile       -F perm=wa -F key=shell_init
+-a always,exit -F dir=/etc/profile.d      -F perm=wa -F key=shell_init
+-a always,exit -F path=/etc/bash.bashrc   -F perm=wa -F key=shell_init
+
+# Sensitive root directory changes
+-a always,exit -F dir=/root                  -F perm=wa -F key=root_dir_change
+-a always,exit -F path=/root/.ssh/authorized_keys -F perm=wa -F key=root-auth-keys
+
+# Watch /etc/skel. Files here are copied to a new user's home directory
+-a always,exit -F dir=/etc/skel -F perm=wa -F key=skel_change
+
+# Syscall rules: execution from temporary or shared folders
+-a always,exit -F arch=b64 -S execve -F dir=/tmp     -k exec_tmp
+-a always,exit -F arch=b64 -S execve -F dir=/var/tmp -k exec_tmp
+-a always,exit -F arch=b64 -S execve -F dir=/dev/shm -k exec_tmp
+-a always,exit -F arch=b32 -S execve -F dir=/tmp     -k exec_tmp
+-a always,exit -F arch=b32 -S execve -F dir=/var/tmp -k exec_tmp
+-a always,exit -F arch=b32 -S execve -F dir=/dev/shm -k exec_tmp
+
+# Monitor loading/unloading kernel modules
+-a always,exit -F arch=b64 -S init_module -S finit_module -S delete_module -k kmod_change
+-a always,exit -F arch=b32 -S init_module -S finit_module -S delete_module -k kmod_change
+-a always,exit -F path=/sbin/insmod   -F perm=x -F key=kmod_change
+-a always,exit -F path=/sbin/modprobe -F perm=x -F key=kmod_change
+-a always,exit -F path=/sbin/rmmod    -F perm=x -F key=kmod_change
+-a always,exit -F dir=/etc/modprobe.d -F perm=wa -F key=kmod_change
+
+# Watch for modifications to PAM module binaries (.so files)
+-a always,exit -F dir=/lib/security/                      -F perm=wa -F key=pam_modules
+# -a always,exit -F dir=/lib64/security/                    -F perm=wa -F key=pam_modules
+-a always,exit -F dir=/usr/lib/security/                  -F perm=wa -F key=pam_modules
+# -a always,exit -F dir=/usr/lib64/security/                -F perm=wa -F key=pam_modules
+-a always,exit -F dir=/usr/lib/x86_64-linux-gnu/security/ -F perm=wa -F key=pam_modules
+
+# Watch for changes to PAM configuration
+-a always,exit -F dir=/etc/pam.d       -F perm=wa -F key=pam_config_change
+-a always,exit -F path=/etc/pam.conf   -F perm=wa -F key=pam_config_change
+-a always,exit -F dir=/etc/security/   -F perm=wa -F key=pam_config_change
+
+# Monitor attempts to change file permissions/ownership via syscalls by non-system accounts
+-a always,exit -F arch=b64 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_change
+-a always,exit -F arch=b64 -S chown -S fchown -S lchown   -F auid>=1000 -F auid!=4294967295 -k perm_change
+-a always,exit -F arch=b32 -S chmod -S fchmod -S fchmodat -F auid>=1000 -F auid!=4294967295 -k perm_change
+-a always,exit -F arch=b32 -S chown -S fchown -S lchown   -F auid>=1000 -F auid!=4294967295 -k perm_change
+
+# Dynamic linker hijacks
+-a always,exit -F path=/etc/ld.so.preload  -F perm=wa -F key=loader_change
+-a always,exit -F path=/etc/ld.so.cache    -F perm=wa -F key=loader_change
+
+# Ignore package manager execution
+-a never,exit -F exe=/usr/bin/dpkg
+-a never,exit -F exe=/usr/bin/apt
+-a never,exit -F exe=/usr/bin/apt-get
+
+# Watch potential modifications to system binaries
+-a always,exit -F arch=b64 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/usr/bin -k sys_bins
+-a always,exit -F arch=b64 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/usr/sbin -k sys_bins
+-a always,exit -F arch=b64 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/bin -k sys_bins
+-a always,exit -F arch=b64 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/sbin -k sys_bins
+
+# 32-bit equivalent just in case
+-a always,exit -F arch=b32 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/usr/bin -k sys_bins
+-a always,exit -F arch=b32 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/usr/sbin -k sys_bins
+-a always,exit -F arch=b32 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/bin -k sys_bins
+-a always,exit -F arch=b32 -S open,openat,rename,renameat,link,symlink,unlink,unlinkat,truncate,ftruncate -F dir=/sbin -k sys_bins
+
+# Monitor certain program executions
+-a always,exit -F path=/usr/bin/sudo      -F perm=x -F key=sudo_exec
+-a always,exit -F path=/bin/su            -F perm=x -F key=su_exec
+-a always,exit -F path=/usr/bin/su        -F perm=x -F key=su_exec
+-a always,exit -F path=/usr/bin/passwd    -F perm=x -F key=passwd_exec
+-a always,exit -F path=/usr/sbin/usermod  -F perm=x -F key=account_changes
+-a always,exit -F path=/usr/sbin/useradd  -F perm=x -F key=account_changes
+-a always,exit -F path=/usr/sbin/userdel  -F perm=x -F key=account_changes
+-a always,exit -F path=/usr/sbin/visudo   -F perm=x -F key=sudo_config_change
+-a always,exit -F path=/usr/sbin/auditctl -F perm=x -F key=auditctl_exec
+
+# Audit subsystem state change
+-a always,exit -F dir=/etc/audit/ -F perm=wa -F key=audit_config
+
