@@ -1,7 +1,7 @@
 #!/bin/bash
 
 systemctl enable auditd
-curl -sL https://github.com/johnmap007/IRsec-toolkit/custom.rules
+curl -sL https://raw.githubusercontent.com/johnmap007/IRsec-toolkit/refs/heads/main/audit.sh
 sudo cp custom.rules /etc/audit/rules.d/
 augenrules --load
 systemctl restart auditd
